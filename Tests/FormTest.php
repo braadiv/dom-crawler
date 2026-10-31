@@ -857,12 +857,16 @@ class FormTest extends TestCase
 
     protected function getFormFieldMock($name, $value = null)
     {
-        $field = $this
-            ->getMockBuilder('Symfony\\Component\\DomCrawler\\Field\\FormField')
-            ->setMethods(['getName', 'getValue', 'setValue', 'initialize'])
+        $builder = $this
+            ->getMockBuilder('Symfony\\Component\\DomCrawler\\Field\\FormField');
+        if (method_exists($builder, 'onlyMethods')) {
+            $builder->onlyMethods(['getName', 'getValue', 'setValue', 'initialize']);
+        } else {
+            $builder->setMethods(['getName', 'getValue', 'setValue', 'initialize']);
+        }
+        $field = $builder
             ->disableOriginalConstructor()
-            ->getMock()
-        ;
+            ->getMock();
 
         $field
             ->expects($this->any())
