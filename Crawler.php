@@ -193,7 +193,7 @@ class Crawler implements \Countable, \IteratorAggregate
 
         try {
             // Convert charset to HTML-entities to work around bugs in DOMDocument::loadHTML()
-            $content = mb_convert_encoding($content, 'HTML-ENTITIES', $charset);
+            $content = mb_encode_numericentity($content, [0x80, 0x10FFFF, 0, ~0], $charset);
         } catch (\Exception $e) {
         } catch (\ValueError $e) {
         } finally {
@@ -850,7 +850,7 @@ class Crawler implements \Countable, \IteratorAggregate
      *
      * @throws \InvalidArgumentException If the current node list is empty or the selected node is not instance of DOMElement
      */
-    public function form(array $values = null, $method = null)
+    public function form(?array $values = null, $method = null)
     {
         if (!$this->nodes) {
             throw new \InvalidArgumentException('The current node list is empty.');
@@ -1066,6 +1066,7 @@ class Crawler implements \Countable, \IteratorAggregate
     /**
      * @return int
      */
+    #[\ReturnTypeWillChange]
     public function count()
     {
         return \count($this->nodes);
@@ -1074,6 +1075,7 @@ class Crawler implements \Countable, \IteratorAggregate
     /**
      * @return \ArrayIterator|\DOMNode[]
      */
+    #[\ReturnTypeWillChange]
     public function getIterator()
     {
         return new \ArrayIterator($this->nodes);
