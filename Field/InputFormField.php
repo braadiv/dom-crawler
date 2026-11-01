@@ -32,7 +32,7 @@ class InputFormField extends FormField
             throw new \LogicException(sprintf('An InputFormField can only be created from an input or button tag (%s given).', $this->node->nodeName));
         }
 
-        $type = strtolower($this->node->getAttribute('type'));
+        $type = strtolower((string) $this->node->getAttribute('type'));
         if ('checkbox' === $type) {
             throw new \LogicException('Checkboxes should be instances of ChoiceFormField.');
         }

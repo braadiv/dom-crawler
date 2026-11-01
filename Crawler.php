@@ -131,6 +131,8 @@ class Crawler implements \Countable, \IteratorAggregate
      */
     public function addContent($content, $type = null)
     {
+        $content = (string) $content;
+
         if (empty($type)) {
             $type = 0 === strpos($content, '<?xml') ? 'application/xml' : 'text/html';
         }
@@ -151,6 +153,7 @@ class Crawler implements \Countable, \IteratorAggregate
         // http://www.w3.org/TR/encoding/#encodings
         // http://www.w3.org/TR/REC-xml/#NT-EncName
         if (null === $charset &&
+            null !== $content &&
             preg_match('/\<meta[^\>]+charset *= *["\']?([a-zA-Z\-0-9_:.]+)/i', $content, $matches)) {
             $charset = $matches[1];
         }
@@ -181,6 +184,7 @@ class Crawler implements \Countable, \IteratorAggregate
      */
     public function addHtmlContent($content, $charset = 'UTF-8')
     {
+        $content = (string) $content;
         $internalErrors = libxml_use_internal_errors(true);
         if (\LIBXML_VERSION < 20900) {
             $disableEntities = libxml_disable_entity_loader(true);
@@ -200,7 +204,7 @@ class Crawler implements \Countable, \IteratorAggregate
             restore_error_handler();
         }
 
-        if ('' !== trim($content)) {
+        if (null !== $content && '' !== trim($content)) {
             @$dom->loadHTML($content);
         }
 
@@ -244,8 +248,9 @@ class Crawler implements \Countable, \IteratorAggregate
      */
     public function addXmlContent($content, $charset = 'UTF-8', $options = \LIBXML_NONET)
     {
+        $content = (string) $content;
         // remove the default namespace if it's the only namespace to make XPath expressions simpler
-        if (!preg_match('/xmlns:/', $content)) {
+        if (null !== $content && !preg_match('/xmlns:/', $content)) {
             $content = str_replace('xmlns', 'ns', $content);
         }
 
@@ -257,7 +262,7 @@ class Crawler implements \Countable, \IteratorAggregate
         $dom = new \DOMDocument('1.0', $charset);
         $dom->validateOnParse = true;
 
-        if ('' !== trim($content)) {
+        if (null !== $content && '' !== trim($content)) {
             @$dom->loadXML($content, $options);
         }
 
@@ -912,6 +917,8 @@ class Crawler implements \Countable, \IteratorAggregate
      */
     public static function xpathLiteral($s)
     {
+        $s = (string) $s;
+
         if (false === strpos($s, "'")) {
             return sprintf("'%s'", $s);
         }
@@ -971,6 +978,7 @@ class Crawler implements \Countable, \IteratorAggregate
      */
     private function relativize($xpath)
     {
+        $xpath = (string) $xpath;
         $expressions = [];
 
         // An expression which will never match to replace expressions which cannot match in the crawler

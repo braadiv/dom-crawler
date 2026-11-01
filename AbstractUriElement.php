@@ -114,8 +114,10 @@ abstract class AbstractUriElement
         }
 
         // relative path
-        $path = parse_url(substr($this->currentUri, \strlen($baseUri)), \PHP_URL_PATH);
-        $path = $this->canonicalizePath(substr($path, 0, strrpos($path, '/')).'/'.$uri);
+        $path = parse_url(substr((string) $this->currentUri, \strlen($baseUri)), \PHP_URL_PATH);
+        $path = (string) $path;
+        $lastSlash = strrpos($path, '/');
+        $path = $this->canonicalizePath(substr($path, 0, false !== $lastSlash ? $lastSlash : 0).'/'.$uri);
 
         return $baseUri.('' === $path || '/' !== $path[0] ? '/' : '').$path;
     }
@@ -136,8 +138,8 @@ abstract class AbstractUriElement
      */
     protected function canonicalizePath($path)
     {
-        if ('' === $path || '/' === $path) {
-            return $path;
+        if ('' === $path || '/' === $path || null === $path) {
+            return (string) $path;
         }
 
         if ('.' === substr($path, -1)) {
@@ -187,6 +189,10 @@ abstract class AbstractUriElement
      */
     private function cleanupQuery($uri)
     {
+        if (null === $uri || '' === $uri) {
+            return (string) $uri;
+        }
+
         if (false !== $pos = strpos($uri, '?')) {
             return substr($uri, 0, $pos);
         }
@@ -203,6 +209,10 @@ abstract class AbstractUriElement
      */
     private function cleanupAnchor($uri)
     {
+        if (null === $uri || '' === $uri) {
+            return (string) $uri;
+        }
+
         if (false !== $pos = strpos($uri, '#')) {
             return substr($uri, 0, $pos);
         }
